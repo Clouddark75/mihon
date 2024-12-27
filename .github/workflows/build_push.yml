@@ -53,13 +53,13 @@ jobs:
       # Sign APK and create release for tags
 
       - name: Get tag name
-        if: startsWith(github.ref, 'refs/tags/') && github.repository == 'mihonapp/mihon'
+        if: startsWith(github.ref, 'refs/tags/') && github.repository == 'Clouddark75/mihon'
         run: |
           set -x
           echo "VERSION_TAG=${GITHUB_REF/refs\/tags\//}" >> $GITHUB_ENV
 
       - name: Sign APK
-        if: startsWith(github.ref, 'refs/tags/') && github.repository == 'mihonapp/mihon'
+        if: startsWith(github.ref, 'refs/tags/') && github.repository == 'Clouddark75/mihon'
         uses: r0adkll/sign-android-release@349ebdef58775b1e0d8099458af0816dc79b6407 # v1
         with:
           releaseDirectory: app/build/outputs/apk/standard/release
@@ -69,7 +69,7 @@ jobs:
           keyPassword: ${{ secrets.KEY_PASSWORD }}
 
       - name: Clean up build artifacts
-        if: startsWith(github.ref, 'refs/tags/') && github.repository == 'mihonapp/mihon'
+        if: startsWith(github.ref, 'refs/tags/') && github.repository == 'Clouddark75/mihon'
         run: |
           set -e
 
@@ -94,7 +94,7 @@ jobs:
           echo "APK_X86_64_SHA=$sha" >> $GITHUB_ENV
 
       - name: Create Release
-        if: startsWith(github.ref, 'refs/tags/') && github.repository == 'mihonapp/mihon'
+        if: startsWith(github.ref, 'refs/tags/') && github.repository == 'Clouddark75/mihon'
         uses: softprops/action-gh-release@01570a1f39cb168c169c802c3bceb9e93fb10974 # v2.1.0
         with:
           tag_name: ${{ env.VERSION_TAG }}
