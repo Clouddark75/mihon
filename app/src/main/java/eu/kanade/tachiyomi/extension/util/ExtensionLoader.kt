@@ -50,7 +50,7 @@ internal object ExtensionLoader {
     private const val METADATA_SOURCE_CLASS = "tachiyomi.extension.class"
     private const val METADATA_SOURCE_FACTORY = "tachiyomi.extension.factory"
     private const val METADATA_NSFW = "tachiyomi.extension.nsfw"
-    const val LIB_VERSION_MIN = 1.4
+    const val LIB_VERSION_MIN = 1.2
     const val LIB_VERSION_MAX = 1.5
 
     @Suppress("DEPRECATION")
