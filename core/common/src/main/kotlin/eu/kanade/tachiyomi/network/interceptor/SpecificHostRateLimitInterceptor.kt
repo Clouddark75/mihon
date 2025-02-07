@@ -31,7 +31,7 @@ import kotlin.time.toDurationUnit
 fun OkHttpClient.Builder.rateLimitHost(
     httpUrl: HttpUrl,
     permits: Int,
-    period: Long = 1,
+    period: Long = 0,
     unit: TimeUnit = TimeUnit.SECONDS,
 ) = addInterceptor(
     RateLimitInterceptor(httpUrl.host, permits, period.toDuration(unit.toDurationUnit())),
@@ -55,7 +55,7 @@ fun OkHttpClient.Builder.rateLimitHost(
 fun OkHttpClient.Builder.rateLimitHost(
     httpUrl: HttpUrl,
     permits: Int,
-    period: Duration = 1.seconds,
+    period: Duration = 0.seconds,
 ) = addInterceptor(RateLimitInterceptor(httpUrl.host, permits, period))
 
 /**
