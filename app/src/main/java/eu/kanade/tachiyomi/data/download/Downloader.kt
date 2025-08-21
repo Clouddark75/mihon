@@ -196,14 +196,14 @@ class Downloader(
                     val pendingDownloads = queue.filter { it.status.value <= Download.State.DOWNLOADING.value }
                     
                     val activeDownloads = if (pendingDownloads.size <= 3) {
-                        // Si hay 3 o menos capítulos, descargar todos
+                        // Si hay 3 o menos capitulos, descargar todos
                         pendingDownloads
                     } else {
-                        // Distribuir equitativamente entre fuentes, máximo 3 capítulos totales
+                        // Distribuir equitativamente entre fuentes, maximo 3 capitulos totales
                         val downloadsBySource = pendingDownloads.groupBy { it.source }
                         val result = mutableListOf<Download>()
                         
-                        // Algoritmo round-robin para distribuir capítulos entre fuentes
+                        // Algoritmo round-robin para distribuir capitulos entre fuentes
                         var sourceIndex = 0
                         val sources = downloadsBySource.keys.toList()
                         
@@ -211,7 +211,7 @@ class Downloader(
                             val source = sources[sourceIndex % sources.size]
                             val sourceDownloads = downloadsBySource[source] ?: emptyList()
                             
-                            // Encontrar el siguiente capítulo de esta fuente que no esté ya en result
+                            // Encontrar el siguiente capitulo de esta fuente que no este ya en result
                             val nextDownload = sourceDownloads.firstOrNull { download ->
                                 !result.contains(download)
                             }
