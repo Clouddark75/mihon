@@ -193,42 +193,17 @@ class Downloader(
         downloaderJob = scope.launch {
             val activeDownloadsFlow = queueState.transformLatest { queue ->
                 while (true) {
-                    val pendingDownloads = queue.filter { it.status.value <= Download.State.DOWNLOADING.value }
-
-                    val activeDownloads = if (pendingDownloads.size <= 3) {
-                        // Si hay 3 o menos capítulos, descargar todos
-                        pendingDownloads
-                    } else {
-                        // Distribuir equitativamente entre fuentes, máximo 3 capítulos totales
-                        val downloadsBySource = pendingDownloads.groupBy { it.source }
-                        val result = mutableListOf<Download>()
-
-                        // Algoritmo round-robin para distribuir capítulos entre fuentes
-                        var sourceIndex = 0
-                        val sources = downloadsBySource.keys.toList()
-
-                        while (result.size < 3 && result.size < pendingDownloads.size) {
-                            val source = sources[sourceIndex % sources.size]
-                            val sourceDownloads = downloadsBySource[source] ?: emptyList()
-
-                            // Encontrar el siguiente capítulo de esta fuente que no esté ya en result
-                            val nextDownload = sourceDownloads.firstOrNull { download ->
-                                !result.contains(download)
-                            }
-
-                            if (nextDownload != null) {
-                                result.add(nextDownload)
-                            }
-
-                            sourceIndex++
-
-                            // Si hemos pasado por todas las fuentes, salir para evitar bucle infinito
-                            if (sourceIndex >= sources.size * 10) break
+                    val activeDownloads = queue.asSequence()
+                        // Ignore completed downloads, leave them in the queue
+                        .filter { it.status.value <= Download.State.DOWNLOADING.value }
+                        .groupBy { it.source }
+                        .toList()
+                        // Concurrently download from 5 different sources
+                        .take(5)
+                        .flatMap { (_, downloads) -> 
+                            // Take up to 3 chapters per source
+                            downloads.take(3) 
                         }
-
-                        result.take(3)
-                    }
-
                     emit(activeDownloads)
 
                     if (activeDownloads.isEmpty()) break
@@ -390,7 +365,7 @@ class Downloader(
             download.status = Download.State.DOWNLOADING
 
             // Start downloading images, consider we can have downloaded images already
-            // Concurrently do 6 pages at a time (volvemos al valor original para páginas)
+            // Concurrently do 4 pages at a time
             pageList.asFlow()
                 .flatMapMerge(concurrency = 4) { page ->
                     flow {
