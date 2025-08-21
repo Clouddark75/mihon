@@ -390,9 +390,9 @@ class Downloader(
             download.status = Download.State.DOWNLOADING
 
             // Start downloading images, consider we can have downloaded images already
-            // Concurrently do 6 pages at a time (volvemos al valor original para páginas)
+            // Concurrently do 4 pages at a time (volvemos al valor original para páginas)
             pageList.asFlow()
-                .flatMapMerge(concurrency = 6) { page ->
+                .flatMapMerge(concurrency = 4) { page ->
                     flow {
                         // Fetch image URL if necessary
                         if (page.imageUrl.isNullOrEmpty()) {
