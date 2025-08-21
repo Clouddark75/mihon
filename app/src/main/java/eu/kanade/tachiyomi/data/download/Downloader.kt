@@ -200,9 +200,9 @@ class Downloader(
                         .toList()
                         // Concurrently download from 5 different sources
                         .take(5)
-                        .flatMap { (_, downloads) -> 
+                        .flatMap { (_, downloads) ->
                             // Take up to 3 chapters per source
-                            downloads.take(3) 
+                            downloads.take(3)
                         }
                     emit(activeDownloads)
 
