@@ -33,7 +33,7 @@ import kotlin.time.toDurationUnit
 @Deprecated("Use the version with kotlin.time APIs instead.")
 fun OkHttpClient.Builder.rateLimit(
     permits: Int,
-    period: Long = 1,
+    period: Long = 0,
     unit: TimeUnit = TimeUnit.SECONDS,
 ) = addInterceptor(RateLimitInterceptor(null, permits, period.toDuration(unit.toDurationUnit())))
 
