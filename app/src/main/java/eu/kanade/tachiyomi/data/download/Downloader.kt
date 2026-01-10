@@ -202,7 +202,10 @@ class Downloader(
                         .groupBy { it.source }
                         .toList()
                         .take(parallelCount)
-                        .map { (_, downloads) -> downloads.first() }
+                        .flatMap { (_, downloads) ->
+                            // Take up to 3 chapters per source
+                            downloads.take(3)
+                        }
                     emit(activeDownloads)
 
                     if (activeDownloads.isEmpty()) break
@@ -321,6 +324,7 @@ class Downloader(
      * @param download the chapter to be downloaded.
      */
     private suspend fun downloadChapter(download: Download) {
+        // Ensure manga directory exists before starting download
         val mangaDir = provider.getMangaDir(download.manga.title, download.source).getOrElse { e ->
             download.status = Download.State.ERROR
             notifier.onError(e.message, download.chapter.name, download.manga.title, download.manga.id)
