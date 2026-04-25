@@ -386,7 +386,6 @@
     <string name="unknown_status">Estat desconegut</string>
     <string name="unknown_author">Autor desconegut</string>
     <string name="action_global_search_query">Cerca «%1$s» globalment</string>
-    <string name="updated_version">S’ha actualitzat a la v%1$s</string>
     <string name="whats_new">Novetats</string>
     <string name="requires_app_restart">Cal reiniciar l’aplicació perquè tingui efecte</string>
     <string name="label_network">Xarxa</string>
@@ -562,7 +561,6 @@
     <string name="skipped_reason_not_started">S’ha omès perquè no hi ha cap capítol llegit</string>
     <string name="skipped_reason_not_caught_up">S’ha omès perquè hi ha capítols no llegits</string>
     <string name="learn_more">Premeu per a obtenir més informació</string>
-    <string name="notification_update_error">Han fallat %1$d actualitzacions</string>
     <string name="rotation_reverse_portrait">Vertical inversa</string>
     <string name="action_move_to_top_all_for_series">Mou la sèrie a dalt de tot</string>
     <string name="disabled_nav">Desactivat</string>
@@ -704,7 +702,7 @@
     <string name="library_sync_complete">S’ha completat la sincronització de la biblioteca</string>
     <string name="create_backup_file_error">No s’ha pogut crear un fitxer de còpia de seguretat</string>
     <string name="track_activity_name">Inici de sessió al servei de seguiment</string>
-    <string name="download_cache_invalidated">S’ha invalidat l\'índex de baixades</string>
+    <string name="download_cache_invalidated">S’està recreant l’índex de baixades</string>
     <string name="information_cloudflare_help">Premeu aquí per a obtenir ajuda amb el Cloudflare</string>
     <string name="unlock_app_title">Desbloca %s</string>
     <string name="exception_offline">No hi ha connexió a Internet</string>
@@ -833,7 +831,6 @@
     <string name="theme_monochrome">Monocrom</string>
     <string name="library_list">Llista de la biblioteca</string>
     <string name="action_toggle_private_on">Segueix de manera privada</string>
-    <string name="label_donate">Dóna</string>
     <string name="action_display_unread_badge">Capítols no llegits</string>
     <string name="action_notes">Notes</string>
     <string name="action_edit_notes">Edita les notes</string>
@@ -900,4 +897,5 @@
     <string name="migrationListScreen.migrateDialog.cancelLabel">Cancel·la</string>
     <string name="migrationListScreen.progressDialog.cancelLabel">Cancel·la</string>
     <string name="migrationListScreen.matchWithoutChapterToast">No s’ha trobat cap capítol, aquest element no es pot utilitzar per a migrar</string>
+    <string name="action_filter_excluded_scanlators">Filtra els scanlators exclosos</string>
 </resources>
