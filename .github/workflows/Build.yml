@@ -33,20 +33,20 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
 
       - name: Dependency Review
         if: github.event_name == 'pull_request'
-        uses: actions/dependency-review-action@2031cfc080254a8a887f58cffee85186f0e49e48 # v4.9.0
+        uses: actions/dependency-review-action@a1d282b36b6f3519aa1f3fc636f609c47dddb294 # v5.0.0
 
       - name: Set up JDK
-        uses: actions/setup-java@be666c2fcd27ec809703dec50e508c2fdc7f6654 # v5.2.0
+        uses: actions/setup-java@ad2b38190b15e4d6bdf0c97fb4fca8412226d287 # v5.3.0
         with:
           java-version-file: .github/.java-version
           distribution: temurin
 
       - name: Set up Gradle
-        uses: gradle/actions/setup-gradle@0723195856401067f7a2779048b490ace7a47d7c # v5.0.2
+        uses: gradle/actions/setup-gradle@3f131e8634966bd73d06cc69884922b02e6faf92 # v6.2.0
 
       - name: Check code format
         run: ./gradlew spotlessCheck
@@ -69,24 +69,21 @@ jobs:
         run: ./gradlew assembleRelease -Pinclude-telemetry -Penable-updater
 
       - name: Upload APK
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: arm64-v8a-${{ github.sha }}
-          path: app/build/outputs/apk/release/app-arm64-v8a-release-unsigned.apk
+          path: app/build/outputs/apk/release/app-arm64-v8a-release.apk
 
       - name: Upload mapping
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: mapping-${{ github.sha }}
           path: app/build/outputs/mapping/release
 
-      # Sign APK and create release for tags
-
       - name: Get tag name
         if: startsWith(github.ref, 'refs/tags/') && github.repository == 'Clouddark75/mihon'
         run: |
-          set -x
-          echo "VERSION_TAG=${GITHUB_REF/refs\/tags\//}" >> $GITHUB_ENV
+          echo "VERSION_TAG=${GITHUB_REF#refs/tags/}" >> $GITHUB_ENV
 
       - name: Sign APK
         if: startsWith(github.ref, 'refs/tags/') && github.repository == 'Clouddark75/mihon'
@@ -100,32 +97,37 @@ jobs:
 
       - name: Clean up build artifacts
         if: startsWith(github.ref, 'refs/tags/') && github.repository == 'Clouddark75/mihon'
+        shell: bash
         run: |
-          set -e
+          set -euxo pipefail
 
-          mv app/build/outputs/apk/release/app-universal-release-unsigned-signed.apk mihon-${{ env.VERSION_TAG }}.apk
-          sha=`sha256sum mihon-${{ env.VERSION_TAG }}.apk | awk '{ print $1 }'`
-          echo "APK_UNIVERSAL_SHA=$sha" >> $GITHUB_ENV
+          cd app/build/outputs/apk/release
 
-          mv app/build/outputs/apk/release/app-arm64-v8a-release-unsigned-signed.apk mihon-arm64-v8a-${{ env.VERSION_TAG }}.apk
-          sha=`sha256sum mihon-arm64-v8a-${{ env.VERSION_TAG }}.apk | awk '{ print $1 }'`
-          echo "APK_ARM64_V8A_SHA=$sha" >> $GITHUB_ENV
+          find . -name "*.apk" | sort
 
-          mv app/build/outputs/apk/release/app-armeabi-v7a-release-unsigned-signed.apk mihon-armeabi-v7a-${{ env.VERSION_TAG }}.apk
-          sha=`sha256sum mihon-armeabi-v7a-${{ env.VERSION_TAG }}.apk | awk '{ print $1 }'`
-          echo "APK_ARMEABI_V7A_SHA=$sha" >> $GITHUB_ENV
+          UNIVERSAL=$(find . -name "*universal*signed*.apk" | head -n1 || true)
+          ARM64=$(find . -name "*arm64-v8a*signed*.apk" | head -n1 || true)
+          ARMV7=$(find . -name "*armeabi-v7a*signed*.apk" | head -n1 || true)
+          X86=$(find . -name "*x86-release*signed*.apk" | head -n1 || true)
+          X8664=$(find . -name "*x86_64*signed*.apk" | head -n1 || true)
 
-          mv app/build/outputs/apk/release/app-x86-release-unsigned-signed.apk mihon-x86-${{ env.VERSION_TAG }}.apk
-          sha=`sha256sum mihon-x86-${{ env.VERSION_TAG }}.apk | awk '{ print $1 }'`
-          echo "APK_X86_SHA=$sha" >> $GITHUB_ENV
+          cp "$UNIVERSAL" "$GITHUB_WORKSPACE/mihon-${{ env.VERSION_TAG }}.apk"
+          cp "$ARM64" "$GITHUB_WORKSPACE/mihon-arm64-v8a-${{ env.VERSION_TAG }}.apk"
+          cp "$ARMV7" "$GITHUB_WORKSPACE/mihon-armeabi-v7a-${{ env.VERSION_TAG }}.apk"
+          cp "$X86" "$GITHUB_WORKSPACE/mihon-x86-${{ env.VERSION_TAG }}.apk"
+          cp "$X8664" "$GITHUB_WORKSPACE/mihon-x86_64-${{ env.VERSION_TAG }}.apk"
 
-          mv app/build/outputs/apk/release/app-x86_64-release-unsigned-signed.apk mihon-x86_64-${{ env.VERSION_TAG }}.apk
-          sha=`sha256sum mihon-x86_64-${{ env.VERSION_TAG }}.apk | awk '{ print $1 }'`
-          echo "APK_X86_64_SHA=$sha" >> $GITHUB_ENV
+          cd "$GITHUB_WORKSPACE"
+
+          echo "APK_UNIVERSAL_SHA=$(sha256sum mihon-${{ env.VERSION_TAG }}.apk | cut -d' ' -f1)" >> $GITHUB_ENV
+          echo "APK_ARM64_V8A_SHA=$(sha256sum mihon-arm64-v8a-${{ env.VERSION_TAG }}.apk | cut -d' ' -f1)" >> $GITHUB_ENV
+          echo "APK_ARMEABI_V7A_SHA=$(sha256sum mihon-armeabi-v7a-${{ env.VERSION_TAG }}.apk | cut -d' ' -f1)" >> $GITHUB_ENV
+          echo "APK_X86_SHA=$(sha256sum mihon-x86-${{ env.VERSION_TAG }}.apk | cut -d' ' -f1)" >> $GITHUB_ENV
+          echo "APK_X86_64_SHA=$(sha256sum mihon-x86_64-${{ env.VERSION_TAG }}.apk | cut -d' ' -f1)" >> $GITHUB_ENV
 
       - name: Create Release
         if: startsWith(github.ref, 'refs/tags/') && github.repository == 'Clouddark75/mihon'
-        uses: softprops/action-gh-release@da05d552573ad5aba039eaac05058a918a7bf631 # v2.2.2
+        uses: softprops/action-gh-release@da05d552573ad5aba039eaac05058a918a7bf631
         with:
           tag_name: ${{ env.VERSION_TAG }}
           name: Mihon ${{ env.VERSION_TAG }}
@@ -136,9 +138,9 @@ jobs:
 
             | Variant | SHA-256 |
             | ------- | ------- |
-            | Universal | ${{ env.APK_UNIVERSAL_SHA }}
-            | arm64-v8a | ${{ env.APK_ARM64_V8A_SHA }}
-            | armeabi-v7a | ${{ env.APK_ARMEABI_V7A_SHA }}
+            | Universal | ${{ env.APK_UNIVERSAL_SHA }} |
+            | arm64-v8a | ${{ env.APK_ARM64_V8A_SHA }} |
+            | armeabi-v7a | ${{ env.APK_ARMEABI_V7A_SHA }} |
             | x86 | ${{ env.APK_X86_SHA }} |
             | x86_64 | ${{ env.APK_X86_64_SHA }} |
 
@@ -152,4 +154,3 @@ jobs:
           draft: true
           prerelease: false
           token: ${{ secrets.GITHUB_TOKEN }}
-          
